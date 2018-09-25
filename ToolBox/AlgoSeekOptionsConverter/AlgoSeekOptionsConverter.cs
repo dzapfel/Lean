@@ -109,7 +109,6 @@ namespace QuantConnect.ToolBox.AlgoSeekOptionsConverter
                 rawDatafiles.Add(rawDataFile);
             }
 
-            var flushInterval = 0;
             //Process each file massively in parallel.
             Parallel.ForEach(rawDatafiles, parallelOptionsProcessing, rawDataFile =>
             {
@@ -130,7 +129,7 @@ namespace QuantConnect.ToolBox.AlgoSeekOptionsConverter
                     start = DateTime.Now;
                 }
 
-                var flushStep = TimeSpan.FromMinutes(15 + 2 * Interlocked.Increment(ref flushInterval));
+                var flushStep = TimeSpan.FromMinutes(10 + random.Next(-3, 4));
 
                 if (reader.Current != null) // reader contains the data
                 {
@@ -176,6 +175,7 @@ namespace QuantConnect.ToolBox.AlgoSeekOptionsConverter
                     Flush(processors, DateTime.MaxValue, true);
                     WriteToDisk(processors, waitForFlush, DateTime.MaxValue, flushStep, true);
 
+                    reader.Dispose();
                     Log.Trace("AlgoSeekOptionsConverter.Convert(): Cleaning up extracted options file {0}", rawDataFile.FullName);
                     rawDataFile.Delete();
                 }
